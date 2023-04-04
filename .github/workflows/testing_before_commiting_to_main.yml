@@ -1,0 +1,37 @@
+name: Testing on pull request
+
+on:
+  push:
+    branches:
+      - main
+      - developer_main_branch
+  pull_request:
+    branches:
+      - main
+      - developer_main_branch
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: 18.x
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'yarn'
+    - name: Get all dependencies
+      run: yarn install --frozen-lockfile
+    - name: Build the project
+      run: npm run build --if-present
+    - name: Test the project
+      run: yarn unit
